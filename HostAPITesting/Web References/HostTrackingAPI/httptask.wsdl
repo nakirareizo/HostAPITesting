@@ -1,0 +1,1039 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://www.host-tracker.com/Services" xmlns:s1="http://microsoft.com/wsdl/types/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://www.host-tracker.com/Services" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">&lt;span&gt;Simplified operations with http tasks&lt;/span&gt;&lt;br/&gt;
+          &lt;span&gt;&lt;u&gt;If you work with method which selects tasks via url&lt;/u&gt;, you should know that when you create task specifying some url - this url is a rawUrl for task, but real url is formed by some rawUrl transormation: &lt;br/&gt;
+            for http task schema is added if needed (http:// by default) and trailing slashes and hash signs are removed. &lt;br/&gt;
+            &lt;u&gt;This url should be specified in such methods&lt;/u&gt;. Use returned value from create task methods for detecting task url.
+          &lt;/span&gt;
+          &lt;div style='border: 1px solid black; padding: .5em'&gt;
+          &lt;span&gt;&lt;u&gt;Authentication for every method&lt;/u&gt; performed through &lt;b&gt;AuthHeader&lt;/b&gt; Soap header with fields:&lt;/span&gt;
+            &lt;ul style='margin-top: 0px; margin-bottom: 10px'&gt;
+                &lt;li style='margin-top: 5px'&gt;&lt;b&gt;login&lt;/b&gt; - user login, must be specified with password, incompatible with ticket&lt;/li&gt;
+                &lt;li style='margin-top: 5px'&gt;&lt;b&gt;password&lt;/b&gt; - user password, must be specified with login, incompatible with ticket&lt;/li&gt;
+                &lt;li style='margin-top: 5px'&gt;&lt;b&gt;ticket&lt;/b&gt; - ticket from SignIn API call of &lt;a href='/api/soap/v1/user.asmx'&gt;user service&lt;/a&gt;, incompatible with login, password pair&lt;/li&gt;
+            &lt;/ul&gt;
+          &lt;span&gt;You should specify only ticket or only (login, password) pair in auth header.&lt;/span&gt;&lt;br/&gt;
+          &lt;span&gt;Soap client fault messages on auth. fail:&lt;/span&gt;
+                &lt;ul style='margin-top: 0px; margin-bottom: 10px'&gt;
+                &lt;li style='margin-top: 5px'&gt;&lt;b&gt;AccessDenied&lt;/b&gt; - access to api is denied. Also coused by wrong user billing package&lt;/li&gt;
+                &lt;li style='margin-top: 5px'&gt;&lt;b&gt;IncorrectLoginOrPassword&lt;/b&gt; - raised when login and/or password is incorrect in auth. header&lt;/li&gt;
+                &lt;li style='margin-top: 5px'&gt;&lt;b&gt;TicketExpired&lt;/b&gt; - provided ticked is expired&lt;/li&gt;
+                &lt;li style='margin-top: 5px'&gt;&lt;b&gt;WrongTicket&lt;/b&gt; - ticket could not be decrypted&lt;/li&gt;
+                &lt;/ul&gt;
+          &lt;/div&gt;
+        </wsdl:documentation>
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://www.host-tracker.com/Services">
+      <s:import namespace="http://microsoft.com/wsdl/types/" />
+      <s:element name="GetTaskWithUrl">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="url" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetTaskWithUrlResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetTaskWithUrlResult" type="tns:Task" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="Task">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="id" type="s1:guid" />
+          <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="creationTime" type="s:dateTime" />
+          <s:element minOccurs="0" maxOccurs="1" name="taskType" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="enabled" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="interval" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="upFromTime" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="lastState" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="lastStateChangeTime" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="openStatEnabled" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="fullLogEnabled" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="disablenceReason" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="disablenceTime" nillable="true" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="holdResults" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="agentStat" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="billingOverlimits" type="tns:ArrayOfString" />
+          <s:element minOccurs="0" maxOccurs="1" name="tags" type="tns:ArrayOfString" />
+          <s:element minOccurs="0" maxOccurs="1" name="subscriptions" type="tns:ArrayOfSubscription" />
+          <s:element minOccurs="0" maxOccurs="1" name="stats" type="tns:TaskStats" />
+          <s:element minOccurs="0" maxOccurs="1" name="agentPools" type="tns:ArrayOfString" />
+          <s:element minOccurs="1" maxOccurs="1" name="deleted" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="dnsbl" type="tns:DnsBlackListCheck" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfString">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="string" nillable="true" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfSubscription">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="Subscription" nillable="true" type="tns:Subscription" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="Subscription">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="alertTypes" type="tns:ArrayOfString" />
+          <s:element minOccurs="0" maxOccurs="1" name="reportTypes" type="tns:ArrayOfString" />
+          <s:element minOccurs="0" maxOccurs="1" name="taskIds" type="tns:ArrayOfGuid" />
+          <s:element minOccurs="0" maxOccurs="1" name="contactIds" type="tns:ArrayOfGuid" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfGuid">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="guid" type="s1:guid" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="TaskStats">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="daily" type="s:double" />
+          <s:element minOccurs="1" maxOccurs="1" name="monthly" type="s:double" />
+          <s:element minOccurs="1" maxOccurs="1" name="yearly" type="s:double" />
+          <s:element minOccurs="1" maxOccurs="1" name="total" type="s:double" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="DnsBlackListCheck">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="lastChecked" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="interval" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="lastState" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="lastStateChangeTime" type="s:dateTime" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="UrlTask">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:Task">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="url" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="checkDnsbl" type="s:boolean" />
+              <s:element minOccurs="0" maxOccurs="1" name="rawUrl" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="HttpTask">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:UrlTask">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="httpMethod" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="userAgent" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="referer" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="acceptHeader" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="keywords" type="tns:ArrayOfString" />
+              <s:element minOccurs="0" maxOccurs="1" name="keywordMode" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="maxResponsePageSize" type="s:int" />
+              <s:element minOccurs="1" maxOccurs="1" name="timeout" type="s:int" />
+              <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="postParameters" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="httpHeaders" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="httpBody" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="followRedirect" type="s:boolean" />
+              <s:element minOccurs="1" maxOccurs="1" name="checkCertificateExpiration" type="s:boolean" />
+              <s:element minOccurs="1" maxOccurs="1" name="checkDomainExpiration" type="s:boolean" />
+              <s:element minOccurs="0" maxOccurs="1" name="ignoredStatuses" type="tns:ArrayOfInt" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="ArrayOfInt">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="int" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="CounterTask">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:UrlTask">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="counterName" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="monitorType" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="deploymentType" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="counterType" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="errorLevel1" nillable="true" type="s:double" />
+              <s:element minOccurs="1" maxOccurs="1" name="errorLevel2" nillable="true" type="s:double" />
+              <s:element minOccurs="0" maxOccurs="1" name="errorCondition" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="errorCheckCount" type="s:int" />
+              <s:element minOccurs="0" maxOccurs="1" name="ftp" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="ftpLogin" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="ftpPassword" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="query" type="tns:CounterQuery" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="CounterQuery">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="counterType" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" default="" name="diskLabelOrFileSystem" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" default="" name="socketAddress" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" default="80" name="socketPort" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" default="" name="dbConnectionString" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" default="" name="perfCounterCategory" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" default="" name="perfCounterName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" default="" name="perfCounterInstance" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="PortTask">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:UrlTask">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="protocol" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="pattern" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="PingTask">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:UrlTask">
+            <s:sequence>
+              <s:element minOccurs="1" maxOccurs="1" name="delay" type="s:int" />
+              <s:element minOccurs="1" maxOccurs="1" name="quantity" type="s:unsignedByte" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="SnmpTask">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:Task">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="host" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="community" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="snmpVersion" type="s:unsignedByte" />
+              <s:element minOccurs="0" maxOccurs="1" name="oid" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="port" type="s:int" />
+              <s:element minOccurs="1" maxOccurs="1" name="retries" type="s:int" />
+              <s:element minOccurs="0" maxOccurs="1" name="snmpMethod" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="DatabaseTask">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:Task">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="serverType" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="server" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="serverPort" type="s:int" />
+              <s:element minOccurs="0" maxOccurs="1" name="service" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="database" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="login" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="query" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="queryMode" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="comparisonMode" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="value1" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="value2" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="includeValue1" type="s:boolean" />
+              <s:element minOccurs="1" maxOccurs="1" name="includeValue2" type="s:boolean" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:element name="AuthHeader" type="tns:AuthHeader" />
+      <s:complexType name="AuthHeader">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="login" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="ticket" type="s:string" />
+        </s:sequence>
+        <s:anyAttribute />
+      </s:complexType>
+      <s:element name="GetTasksWithUrls">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="urls" type="tns:ArrayOfString" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetTasksWithUrlsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetTasksWithUrlsResult" type="tns:ArrayOfTask" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfTask">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="Task" nillable="true" type="tns:Task" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdateStatusForTaskWithUrl">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="url" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="isEnabled" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateStatusForTaskWithUrlResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpdateStatusForTaskWithUrlResult" type="tns:Task" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateStatusForTasksWithUrls">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="urls" type="tns:ArrayOfString" />
+            <s:element minOccurs="1" maxOccurs="1" name="isEnabled" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateStatusForTasksWithUrlsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpdateStatusForTasksWithUrlsResult" type="tns:ArrayOfTask" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateUrlForTaskWithUrl">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="url" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="newUrl" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateUrlForTaskWithUrlResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpdateUrlForTaskWithUrlResult" type="tns:Task" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateIntervalForTaskWithUrl">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="url" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="interval" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateIntervalForTaskWithUrlResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpdateIntervalForTaskWithUrlResult" type="tns:Task" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateIntervalForTasksWithUrls">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="urls" type="tns:ArrayOfString" />
+            <s:element minOccurs="1" maxOccurs="1" name="interval" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateIntervalForTasksWithUrlsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpdateIntervalForTasksWithUrlsResult" type="tns:Task" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdatePostDataForPostTaskWithUrl">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="url" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="postData" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdatePostDataForPostTaskWithUrlResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpdatePostDataForPostTaskWithUrlResult" type="tns:Task" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdatePostDataForPostTasksWithUrls">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="urls" type="tns:ArrayOfString" />
+            <s:element minOccurs="0" maxOccurs="1" name="postData" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdatePostDataForPostTasksWithUrlsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpdatePostDataForPostTasksWithUrlsResult" type="tns:Task" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteTaskWithUrl">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="url" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteTaskWithUrlResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DeleteTaskWithUrlResult" type="tns:ArrayOfTask" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteTaskWithUrls">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="urls" type="tns:ArrayOfString" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteTaskWithUrlsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DeleteTaskWithUrlsResult" type="tns:ArrayOfTask" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateHttpHeadTask">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="url" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="interval" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateHttpHeadTaskResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CreateHttpHeadTaskResult" type="tns:Task" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateHttpHeadTasks">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="urls" type="tns:ArrayOfString" />
+            <s:element minOccurs="1" maxOccurs="1" name="interval" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="returnBadFormatedData" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateHttpHeadTasksResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CreateHttpHeadTasksResult" type="tns:BatchTaskOperationResult" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="BatchTaskOperationResult">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="tasks" type="tns:ArrayOfTask" />
+          <s:element minOccurs="0" maxOccurs="1" name="badTaskEditableData" type="tns:ArrayOfBadTaskEditableData" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfBadTaskEditableData">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="BadTaskEditableData" nillable="true" type="tns:BadTaskEditableData" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="BadTaskEditableData">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="index" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="taskId" nillable="true" type="s1:guid" />
+          <s:element minOccurs="0" maxOccurs="1" name="code" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="message" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="CreateHttpGetTask">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="url" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="interval" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateHttpGetTaskResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CreateHttpGetTaskResult" type="tns:Task" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateHttpGetTasks">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="urls" type="tns:ArrayOfString" />
+            <s:element minOccurs="1" maxOccurs="1" name="interval" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="returnBadFormatedData" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateHttpGetTasksResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CreateHttpGetTasksResult" type="tns:BatchTaskOperationResult" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateHttpPostTask">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="url" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="interval" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="postData" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateHttpPostTaskResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CreateHttpPostTaskResult" type="tns:Task" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateHttpPostTasksWithSamePostData">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="urls" type="tns:ArrayOfString" />
+            <s:element minOccurs="1" maxOccurs="1" name="interval" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="postData" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="returnBadFormatedData" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateHttpPostTasksWithSamePostDataResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CreateHttpPostTasksWithSamePostDataResult" type="tns:BatchTaskOperationResult" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateTaskUrl">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="id" type="s1:guid" />
+            <s:element minOccurs="0" maxOccurs="1" name="url" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateTaskUrlResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpdateTaskUrlResult" type="tns:Task" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateTaskInterval">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="id" type="s1:guid" />
+            <s:element minOccurs="1" maxOccurs="1" name="interval" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateTaskIntervalResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpdateTaskIntervalResult" type="tns:Task" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+    </s:schema>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://microsoft.com/wsdl/types/">
+      <s:simpleType name="guid">
+        <s:restriction base="s:string">
+          <s:pattern value="[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}" />
+        </s:restriction>
+      </s:simpleType>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="GetTaskWithUrlSoapIn">
+    <wsdl:part name="parameters" element="tns:GetTaskWithUrl" />
+  </wsdl:message>
+  <wsdl:message name="GetTaskWithUrlSoapOut">
+    <wsdl:part name="parameters" element="tns:GetTaskWithUrlResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetTaskWithUrlAuthHeader">
+    <wsdl:part name="AuthHeader" element="tns:AuthHeader" />
+  </wsdl:message>
+  <wsdl:message name="GetTasksWithUrlsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetTasksWithUrls" />
+  </wsdl:message>
+  <wsdl:message name="GetTasksWithUrlsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetTasksWithUrlsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetTasksWithUrlsAuthHeader">
+    <wsdl:part name="AuthHeader" element="tns:AuthHeader" />
+  </wsdl:message>
+  <wsdl:message name="UpdateStatusForTaskWithUrlSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateStatusForTaskWithUrl" />
+  </wsdl:message>
+  <wsdl:message name="UpdateStatusForTaskWithUrlSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateStatusForTaskWithUrlResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateStatusForTaskWithUrlAuthHeader">
+    <wsdl:part name="AuthHeader" element="tns:AuthHeader" />
+  </wsdl:message>
+  <wsdl:message name="UpdateStatusForTasksWithUrlsSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateStatusForTasksWithUrls" />
+  </wsdl:message>
+  <wsdl:message name="UpdateStatusForTasksWithUrlsSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateStatusForTasksWithUrlsResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateStatusForTasksWithUrlsAuthHeader">
+    <wsdl:part name="AuthHeader" element="tns:AuthHeader" />
+  </wsdl:message>
+  <wsdl:message name="UpdateUrlForTaskWithUrlSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateUrlForTaskWithUrl" />
+  </wsdl:message>
+  <wsdl:message name="UpdateUrlForTaskWithUrlSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateUrlForTaskWithUrlResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateUrlForTaskWithUrlAuthHeader">
+    <wsdl:part name="AuthHeader" element="tns:AuthHeader" />
+  </wsdl:message>
+  <wsdl:message name="UpdateIntervalForTaskWithUrlSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateIntervalForTaskWithUrl" />
+  </wsdl:message>
+  <wsdl:message name="UpdateIntervalForTaskWithUrlSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateIntervalForTaskWithUrlResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateIntervalForTaskWithUrlAuthHeader">
+    <wsdl:part name="AuthHeader" element="tns:AuthHeader" />
+  </wsdl:message>
+  <wsdl:message name="UpdateIntervalForTasksWithUrlsSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateIntervalForTasksWithUrls" />
+  </wsdl:message>
+  <wsdl:message name="UpdateIntervalForTasksWithUrlsSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateIntervalForTasksWithUrlsResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateIntervalForTasksWithUrlsAuthHeader">
+    <wsdl:part name="AuthHeader" element="tns:AuthHeader" />
+  </wsdl:message>
+  <wsdl:message name="UpdatePostDataForPostTaskWithUrlSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdatePostDataForPostTaskWithUrl" />
+  </wsdl:message>
+  <wsdl:message name="UpdatePostDataForPostTaskWithUrlSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdatePostDataForPostTaskWithUrlResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdatePostDataForPostTaskWithUrlAuthHeader">
+    <wsdl:part name="AuthHeader" element="tns:AuthHeader" />
+  </wsdl:message>
+  <wsdl:message name="UpdatePostDataForPostTasksWithUrlsSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdatePostDataForPostTasksWithUrls" />
+  </wsdl:message>
+  <wsdl:message name="UpdatePostDataForPostTasksWithUrlsSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdatePostDataForPostTasksWithUrlsResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdatePostDataForPostTasksWithUrlsAuthHeader">
+    <wsdl:part name="AuthHeader" element="tns:AuthHeader" />
+  </wsdl:message>
+  <wsdl:message name="DeleteTaskWithUrlSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteTaskWithUrl" />
+  </wsdl:message>
+  <wsdl:message name="DeleteTaskWithUrlSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteTaskWithUrlResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteTaskWithUrlAuthHeader">
+    <wsdl:part name="AuthHeader" element="tns:AuthHeader" />
+  </wsdl:message>
+  <wsdl:message name="DeleteTaskWithUrlsSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteTaskWithUrls" />
+  </wsdl:message>
+  <wsdl:message name="DeleteTaskWithUrlsSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteTaskWithUrlsResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteTaskWithUrlsAuthHeader">
+    <wsdl:part name="AuthHeader" element="tns:AuthHeader" />
+  </wsdl:message>
+  <wsdl:message name="CreateHttpHeadTaskSoapIn">
+    <wsdl:part name="parameters" element="tns:CreateHttpHeadTask" />
+  </wsdl:message>
+  <wsdl:message name="CreateHttpHeadTaskSoapOut">
+    <wsdl:part name="parameters" element="tns:CreateHttpHeadTaskResponse" />
+  </wsdl:message>
+  <wsdl:message name="CreateHttpHeadTaskAuthHeader">
+    <wsdl:part name="AuthHeader" element="tns:AuthHeader" />
+  </wsdl:message>
+  <wsdl:message name="CreateHttpHeadTasksSoapIn">
+    <wsdl:part name="parameters" element="tns:CreateHttpHeadTasks" />
+  </wsdl:message>
+  <wsdl:message name="CreateHttpHeadTasksSoapOut">
+    <wsdl:part name="parameters" element="tns:CreateHttpHeadTasksResponse" />
+  </wsdl:message>
+  <wsdl:message name="CreateHttpHeadTasksAuthHeader">
+    <wsdl:part name="AuthHeader" element="tns:AuthHeader" />
+  </wsdl:message>
+  <wsdl:message name="CreateHttpGetTaskSoapIn">
+    <wsdl:part name="parameters" element="tns:CreateHttpGetTask" />
+  </wsdl:message>
+  <wsdl:message name="CreateHttpGetTaskSoapOut">
+    <wsdl:part name="parameters" element="tns:CreateHttpGetTaskResponse" />
+  </wsdl:message>
+  <wsdl:message name="CreateHttpGetTaskAuthHeader">
+    <wsdl:part name="AuthHeader" element="tns:AuthHeader" />
+  </wsdl:message>
+  <wsdl:message name="CreateHttpGetTasksSoapIn">
+    <wsdl:part name="parameters" element="tns:CreateHttpGetTasks" />
+  </wsdl:message>
+  <wsdl:message name="CreateHttpGetTasksSoapOut">
+    <wsdl:part name="parameters" element="tns:CreateHttpGetTasksResponse" />
+  </wsdl:message>
+  <wsdl:message name="CreateHttpGetTasksAuthHeader">
+    <wsdl:part name="AuthHeader" element="tns:AuthHeader" />
+  </wsdl:message>
+  <wsdl:message name="CreateHttpPostTaskSoapIn">
+    <wsdl:part name="parameters" element="tns:CreateHttpPostTask" />
+  </wsdl:message>
+  <wsdl:message name="CreateHttpPostTaskSoapOut">
+    <wsdl:part name="parameters" element="tns:CreateHttpPostTaskResponse" />
+  </wsdl:message>
+  <wsdl:message name="CreateHttpPostTaskAuthHeader">
+    <wsdl:part name="AuthHeader" element="tns:AuthHeader" />
+  </wsdl:message>
+  <wsdl:message name="CreateHttpPostTasksWithSamePostDataSoapIn">
+    <wsdl:part name="parameters" element="tns:CreateHttpPostTasksWithSamePostData" />
+  </wsdl:message>
+  <wsdl:message name="CreateHttpPostTasksWithSamePostDataSoapOut">
+    <wsdl:part name="parameters" element="tns:CreateHttpPostTasksWithSamePostDataResponse" />
+  </wsdl:message>
+  <wsdl:message name="CreateHttpPostTasksWithSamePostDataAuthHeader">
+    <wsdl:part name="AuthHeader" element="tns:AuthHeader" />
+  </wsdl:message>
+  <wsdl:message name="UpdateTaskUrlSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateTaskUrl" />
+  </wsdl:message>
+  <wsdl:message name="UpdateTaskUrlSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateTaskUrlResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateTaskUrlAuthHeader">
+    <wsdl:part name="AuthHeader" element="tns:AuthHeader" />
+  </wsdl:message>
+  <wsdl:message name="UpdateTaskIntervalSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateTaskInterval" />
+  </wsdl:message>
+  <wsdl:message name="UpdateTaskIntervalSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateTaskIntervalResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateTaskIntervalAuthHeader">
+    <wsdl:part name="AuthHeader" element="tns:AuthHeader" />
+  </wsdl:message>
+  <wsdl:portType name="HttpTaskServiceSoap">
+    <wsdl:operation name="GetTaskWithUrl">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Get task by url. Return null if task was not found. If url is null result is Soap client fail EmptyUrl</wsdl:documentation>
+      <wsdl:input message="tns:GetTaskWithUrlSoapIn" />
+      <wsdl:output message="tns:GetTaskWithUrlSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetTasksWithUrls">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Get tasks by urls</wsdl:documentation>
+      <wsdl:input message="tns:GetTasksWithUrlsSoapIn" />
+      <wsdl:output message="tns:GetTasksWithUrlsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateStatusForTaskWithUrl">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Enable or disable http task with specified url</wsdl:documentation>
+      <wsdl:input message="tns:UpdateStatusForTaskWithUrlSoapIn" />
+      <wsdl:output message="tns:UpdateStatusForTaskWithUrlSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateStatusForTasksWithUrls">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Enable or disable http tasks with specified urls</wsdl:documentation>
+      <wsdl:input message="tns:UpdateStatusForTasksWithUrlsSoapIn" />
+      <wsdl:output message="tns:UpdateStatusForTasksWithUrlsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateUrlForTaskWithUrl">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Update url of http task with specified url</wsdl:documentation>
+      <wsdl:input message="tns:UpdateUrlForTaskWithUrlSoapIn" />
+      <wsdl:output message="tns:UpdateUrlForTaskWithUrlSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateIntervalForTaskWithUrl">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Update interval of http task with specified url</wsdl:documentation>
+      <wsdl:input message="tns:UpdateIntervalForTaskWithUrlSoapIn" />
+      <wsdl:output message="tns:UpdateIntervalForTaskWithUrlSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateIntervalForTasksWithUrls">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Update interval of http task with specified url</wsdl:documentation>
+      <wsdl:input message="tns:UpdateIntervalForTasksWithUrlsSoapIn" />
+      <wsdl:output message="tns:UpdateIntervalForTasksWithUrlsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdatePostDataForPostTaskWithUrl">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Update post data of http post task with specified url</wsdl:documentation>
+      <wsdl:input message="tns:UpdatePostDataForPostTaskWithUrlSoapIn" />
+      <wsdl:output message="tns:UpdatePostDataForPostTaskWithUrlSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdatePostDataForPostTasksWithUrls">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Update post data of http post task with specified url</wsdl:documentation>
+      <wsdl:input message="tns:UpdatePostDataForPostTasksWithUrlsSoapIn" />
+      <wsdl:output message="tns:UpdatePostDataForPostTasksWithUrlsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteTaskWithUrl">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Delete task with specified url</wsdl:documentation>
+      <wsdl:input message="tns:DeleteTaskWithUrlSoapIn" />
+      <wsdl:output message="tns:DeleteTaskWithUrlSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteTaskWithUrls">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Delete task with specified urls</wsdl:documentation>
+      <wsdl:input message="tns:DeleteTaskWithUrlsSoapIn" />
+      <wsdl:output message="tns:DeleteTaskWithUrlsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CreateHttpHeadTask">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Create http task with method &lt;i&gt;Head&lt;/i&gt; and specified url and interval. See &lt;a href='/api/soap/v1/task.asmx'&gt;task service&lt;/a&gt; CreateTask for resulted Soap client faults.</wsdl:documentation>
+      <wsdl:input message="tns:CreateHttpHeadTaskSoapIn" />
+      <wsdl:output message="tns:CreateHttpHeadTaskSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CreateHttpHeadTasks">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Create http tasks with method &lt;i&gt;Head&lt;/i&gt; for each url in urls array with specified interval. See &lt;a href='/api/soap/v1/task.asmx'&gt;task service&lt;/a&gt; CreateTasks for resulted Soap client faults.</wsdl:documentation>
+      <wsdl:input message="tns:CreateHttpHeadTasksSoapIn" />
+      <wsdl:output message="tns:CreateHttpHeadTasksSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CreateHttpGetTask">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Create http task with method &lt;i&gt;Get&lt;/i&gt; and specified url and interval. See &lt;a href='/api/soap/v1/task.asmx'&gt;task service&lt;/a&gt; CreateTask for resulted Soap client faults.</wsdl:documentation>
+      <wsdl:input message="tns:CreateHttpGetTaskSoapIn" />
+      <wsdl:output message="tns:CreateHttpGetTaskSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CreateHttpGetTasks">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Create http tasks with method &lt;i&gt;Get&lt;/i&gt; for each url in urls array with specified interval. See &lt;a href='/api/soap/v1/task.asmx'&gt;task service&lt;/a&gt; CreateTasks for resulted Soap client faults.</wsdl:documentation>
+      <wsdl:input message="tns:CreateHttpGetTasksSoapIn" />
+      <wsdl:output message="tns:CreateHttpGetTasksSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CreateHttpPostTask">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Create http task with method &lt;i&gt;Post&lt;/i&gt; and specified url, postData and interval. See &lt;a href='/api/soap/v1/task.asmx'&gt;task service&lt;/a&gt; CreateTask for resulted Soap client faults.</wsdl:documentation>
+      <wsdl:input message="tns:CreateHttpPostTaskSoapIn" />
+      <wsdl:output message="tns:CreateHttpPostTaskSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CreateHttpPostTasksWithSamePostData">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Create http tasks with method &lt;i&gt;Post&lt;/i&gt; for each url in urls array with specified interval and postData. See &lt;a href='/api/soap/v1/task.asmx'&gt;task service&lt;/a&gt; CreateTasks for resulted Soap client faults.</wsdl:documentation>
+      <wsdl:input message="tns:CreateHttpPostTasksWithSamePostDataSoapIn" />
+      <wsdl:output message="tns:CreateHttpPostTasksWithSamePostDataSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateTaskUrl">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Update http task url. See &lt;a href='/api/soap/v1/task.asmx'&gt;task service&lt;/a&gt; UpdateTask for resulted Soap client faults.</wsdl:documentation>
+      <wsdl:input message="tns:UpdateTaskUrlSoapIn" />
+      <wsdl:output message="tns:UpdateTaskUrlSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateTaskInterval">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Update http task interval. See &lt;a href='/api/soap/v1/task.asmx'&gt;task service&lt;/a&gt; UpdateTask for resulted Soap client faults.</wsdl:documentation>
+      <wsdl:input message="tns:UpdateTaskIntervalSoapIn" />
+      <wsdl:output message="tns:UpdateTaskIntervalSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="HttpTaskServiceSoap" type="tns:HttpTaskServiceSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="GetTaskWithUrl">
+      <soap:operation soapAction="http://www.host-tracker.com/Services/GetTaskWithUrl" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:GetTaskWithUrlAuthHeader" part="AuthHeader" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTasksWithUrls">
+      <soap:operation soapAction="http://www.host-tracker.com/Services/GetTasksWithUrls" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:GetTasksWithUrlsAuthHeader" part="AuthHeader" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateStatusForTaskWithUrl">
+      <soap:operation soapAction="http://www.host-tracker.com/Services/UpdateStatusForTaskWithUrl" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:UpdateStatusForTaskWithUrlAuthHeader" part="AuthHeader" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateStatusForTasksWithUrls">
+      <soap:operation soapAction="http://www.host-tracker.com/Services/UpdateStatusForTasksWithUrls" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:UpdateStatusForTasksWithUrlsAuthHeader" part="AuthHeader" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateUrlForTaskWithUrl">
+      <soap:operation soapAction="http://www.host-tracker.com/Services/UpdateUrlForTaskWithUrl" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:UpdateUrlForTaskWithUrlAuthHeader" part="AuthHeader" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateIntervalForTaskWithUrl">
+      <soap:operation soapAction="http://www.host-tracker.com/Services/UpdateIntervalForTaskWithUrl" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:UpdateIntervalForTaskWithUrlAuthHeader" part="AuthHeader" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateIntervalForTasksWithUrls">
+      <soap:operation soapAction="http://www.host-tracker.com/Services/UpdateIntervalForTasksWithUrls" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:UpdateIntervalForTasksWithUrlsAuthHeader" part="AuthHeader" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdatePostDataForPostTaskWithUrl">
+      <soap:operation soapAction="http://www.host-tracker.com/Services/UpdatePostDataForPostTaskWithUrl" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:UpdatePostDataForPostTaskWithUrlAuthHeader" part="AuthHeader" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdatePostDataForPostTasksWithUrls">
+      <soap:operation soapAction="http://www.host-tracker.com/Services/UpdatePostDataForPostTasksWithUrls" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:UpdatePostDataForPostTasksWithUrlsAuthHeader" part="AuthHeader" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteTaskWithUrl">
+      <soap:operation soapAction="http://www.host-tracker.com/Services/DeleteTaskWithUrl" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:DeleteTaskWithUrlAuthHeader" part="AuthHeader" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteTaskWithUrls">
+      <soap:operation soapAction="http://www.host-tracker.com/Services/DeleteTaskWithUrls" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:DeleteTaskWithUrlsAuthHeader" part="AuthHeader" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateHttpHeadTask">
+      <soap:operation soapAction="http://www.host-tracker.com/Services/CreateHttpHeadTask" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:CreateHttpHeadTaskAuthHeader" part="AuthHeader" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateHttpHeadTasks">
+      <soap:operation soapAction="http://www.host-tracker.com/Services/CreateHttpHeadTasks" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:CreateHttpHeadTasksAuthHeader" part="AuthHeader" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateHttpGetTask">
+      <soap:operation soapAction="http://www.host-tracker.com/Services/CreateHttpGetTask" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:CreateHttpGetTaskAuthHeader" part="AuthHeader" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateHttpGetTasks">
+      <soap:operation soapAction="http://www.host-tracker.com/Services/CreateHttpGetTasks" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:CreateHttpGetTasksAuthHeader" part="AuthHeader" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateHttpPostTask">
+      <soap:operation soapAction="http://www.host-tracker.com/Services/CreateHttpPostTask" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:CreateHttpPostTaskAuthHeader" part="AuthHeader" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateHttpPostTasksWithSamePostData">
+      <soap:operation soapAction="http://www.host-tracker.com/Services/CreateHttpPostTasksWithSamePostData" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:CreateHttpPostTasksWithSamePostDataAuthHeader" part="AuthHeader" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateTaskUrl">
+      <soap:operation soapAction="http://www.host-tracker.com/Services/UpdateTaskUrl" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:UpdateTaskUrlAuthHeader" part="AuthHeader" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateTaskInterval">
+      <soap:operation soapAction="http://www.host-tracker.com/Services/UpdateTaskInterval" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:UpdateTaskIntervalAuthHeader" part="AuthHeader" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="HttpTaskService">
+    <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">&lt;span&gt;Simplified operations with http tasks&lt;/span&gt;&lt;br/&gt;
+          &lt;span&gt;&lt;u&gt;If you work with method which selects tasks via url&lt;/u&gt;, you should know that when you create task specifying some url - this url is a rawUrl for task, but real url is formed by some rawUrl transormation: &lt;br/&gt;
+            for http task schema is added if needed (http:// by default) and trailing slashes and hash signs are removed. &lt;br/&gt;
+            &lt;u&gt;This url should be specified in such methods&lt;/u&gt;. Use returned value from create task methods for detecting task url.
+          &lt;/span&gt;
+          &lt;div style='border: 1px solid black; padding: .5em'&gt;
+          &lt;span&gt;&lt;u&gt;Authentication for every method&lt;/u&gt; performed through &lt;b&gt;AuthHeader&lt;/b&gt; Soap header with fields:&lt;/span&gt;
+            &lt;ul style='margin-top: 0px; margin-bottom: 10px'&gt;
+                &lt;li style='margin-top: 5px'&gt;&lt;b&gt;login&lt;/b&gt; - user login, must be specified with password, incompatible with ticket&lt;/li&gt;
+                &lt;li style='margin-top: 5px'&gt;&lt;b&gt;password&lt;/b&gt; - user password, must be specified with login, incompatible with ticket&lt;/li&gt;
+                &lt;li style='margin-top: 5px'&gt;&lt;b&gt;ticket&lt;/b&gt; - ticket from SignIn API call of &lt;a href='/api/soap/v1/user.asmx'&gt;user service&lt;/a&gt;, incompatible with login, password pair&lt;/li&gt;
+            &lt;/ul&gt;
+          &lt;span&gt;You should specify only ticket or only (login, password) pair in auth header.&lt;/span&gt;&lt;br/&gt;
+          &lt;span&gt;Soap client fault messages on auth. fail:&lt;/span&gt;
+                &lt;ul style='margin-top: 0px; margin-bottom: 10px'&gt;
+                &lt;li style='margin-top: 5px'&gt;&lt;b&gt;AccessDenied&lt;/b&gt; - access to api is denied. Also coused by wrong user billing package&lt;/li&gt;
+                &lt;li style='margin-top: 5px'&gt;&lt;b&gt;IncorrectLoginOrPassword&lt;/b&gt; - raised when login and/or password is incorrect in auth. header&lt;/li&gt;
+                &lt;li style='margin-top: 5px'&gt;&lt;b&gt;TicketExpired&lt;/b&gt; - provided ticked is expired&lt;/li&gt;
+                &lt;li style='margin-top: 5px'&gt;&lt;b&gt;WrongTicket&lt;/b&gt; - ticket could not be decrypted&lt;/li&gt;
+                &lt;/ul&gt;
+          &lt;/div&gt;
+        </wsdl:documentation>
+    <wsdl:port name="HttpTaskServiceSoap" binding="tns:HttpTaskServiceSoap">
+      <soap:address location="https://www.host-tracker.com/api/soap/v1/httptask.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

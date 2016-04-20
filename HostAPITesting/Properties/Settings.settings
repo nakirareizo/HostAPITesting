@@ -1,0 +1,15 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="HostAPITesting.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="HostAPITesting_HostTrackerAPI_UserService" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">https://www.host-tracker.com/api/soap/v1/user.asmx</Value>
+    </Setting>
+    <Setting Name="HostAPITesting_HostTrackingAPI_HttpTaskService" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">https://www.host-tracker.com/api/soap/v1/httptask.asmx</Value>
+    </Setting>
+    <Setting Name="HostAPITesting_UpDowntimeTracker_TaskService" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">https://www.host-tracker.com/api/soap/v1/task.asmx</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

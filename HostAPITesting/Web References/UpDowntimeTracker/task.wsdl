@@ -1,0 +1,1201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://www.host-tracker.com/Services" xmlns:s1="http://microsoft.com/wsdl/types/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://www.host-tracker.com/Services" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">&lt;span&gt;Operations with HostTracker regular tasks&lt;/span&gt;&lt;br/&gt;
+          &lt;div style='border: 1px solid black; padding: .5em'&gt;
+          &lt;span&gt;&lt;u&gt;Authentication for every method&lt;/u&gt; performed through &lt;b&gt;AuthHeader&lt;/b&gt; Soap header with fields:&lt;/span&gt;
+            &lt;ul style='margin-top: 0px; margin-bottom: 10px'&gt;
+                &lt;li style='margin-top: 5px'&gt;&lt;b&gt;login&lt;/b&gt; - user login, must be specified with password, incompatible with ticket&lt;/li&gt;
+                &lt;li style='margin-top: 5px'&gt;&lt;b&gt;password&lt;/b&gt; - user password, must be specified with login, incompatible with ticket&lt;/li&gt;
+                &lt;li style='margin-top: 5px'&gt;&lt;b&gt;ticket&lt;/b&gt; - ticket from SignIn API call of &lt;a href='/api/soap/v1/user.asmx'&gt;user service&lt;/a&gt;, incompatible with login, password pair&lt;/li&gt;
+            &lt;/ul&gt;
+          &lt;span&gt;You should specify only ticket or only (login, password) pair in auth header.&lt;/span&gt;&lt;br/&gt;
+          &lt;span&gt;Soap client fault messages on auth. fail:&lt;/span&gt;
+                &lt;ul style='margin-top: 0px; margin-bottom: 10px'&gt;
+                &lt;li style='margin-top: 5px'&gt;&lt;b&gt;AccessDenied&lt;/b&gt; - access to api is denied. Also coused by wrong user billing package&lt;/li&gt;
+                &lt;li style='margin-top: 5px'&gt;&lt;b&gt;IncorrectLoginOrPassword&lt;/b&gt; - raised when login and/or password is incorrect in auth. header&lt;/li&gt;
+                &lt;li style='margin-top: 5px'&gt;&lt;b&gt;TicketExpired&lt;/b&gt; - provided ticked is expired&lt;/li&gt;
+                &lt;li style='margin-top: 5px'&gt;&lt;b&gt;WrongTicket&lt;/b&gt; - ticket could not be decrypted&lt;/li&gt;
+                &lt;/ul&gt;
+          &lt;/div&gt;
+        </wsdl:documentation>
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://www.host-tracker.com/Services">
+      <s:import namespace="http://microsoft.com/wsdl/types/" />
+      <s:element name="GetTaskTypes">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetTaskTypesResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetTaskTypesResult" type="tns:ArrayOfString" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfString">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="string" nillable="true" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="AuthHeader" type="tns:AuthHeader" />
+      <s:complexType name="AuthHeader">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="login" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="ticket" type="s:string" />
+        </s:sequence>
+        <s:anyAttribute />
+      </s:complexType>
+      <s:element name="GetTaskIntervals">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetTaskIntervalsResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetTaskIntervalsResult" type="tns:ArrayOfInt" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfInt">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="int" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetTasks">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="additionalTaskInfo" type="tns:TaskInformation" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:simpleType name="TaskInformation">
+        <s:list>
+          <s:simpleType>
+            <s:restriction base="s:string">
+              <s:enumeration value="None" />
+              <s:enumeration value="Subscriptions" />
+              <s:enumeration value="Stats" />
+            </s:restriction>
+          </s:simpleType>
+        </s:list>
+      </s:simpleType>
+      <s:element name="GetTasksResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetTasksResult" type="tns:ArrayOfTask" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfTask">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="Task" nillable="true" type="tns:Task" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="Task">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="id" type="s1:guid" />
+          <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="creationTime" type="s:dateTime" />
+          <s:element minOccurs="0" maxOccurs="1" name="taskType" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="enabled" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="interval" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="upFromTime" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="lastState" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="lastStateChangeTime" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="openStatEnabled" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="fullLogEnabled" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="disablenceReason" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="disablenceTime" nillable="true" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="holdResults" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="agentStat" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="billingOverlimits" type="tns:ArrayOfString" />
+          <s:element minOccurs="0" maxOccurs="1" name="tags" type="tns:ArrayOfString" />
+          <s:element minOccurs="0" maxOccurs="1" name="subscriptions" type="tns:ArrayOfSubscription" />
+          <s:element minOccurs="0" maxOccurs="1" name="stats" type="tns:TaskStats" />
+          <s:element minOccurs="0" maxOccurs="1" name="agentPools" type="tns:ArrayOfString" />
+          <s:element minOccurs="1" maxOccurs="1" name="deleted" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="dnsbl" type="tns:DnsBlackListCheck" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfSubscription">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="Subscription" nillable="true" type="tns:Subscription" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="Subscription">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="alertTypes" type="tns:ArrayOfString" />
+          <s:element minOccurs="0" maxOccurs="1" name="reportTypes" type="tns:ArrayOfString" />
+          <s:element minOccurs="0" maxOccurs="1" name="taskIds" type="tns:ArrayOfGuid" />
+          <s:element minOccurs="0" maxOccurs="1" name="contactIds" type="tns:ArrayOfGuid" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfGuid">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="guid" type="s1:guid" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="TaskStats">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="daily" type="s:double" />
+          <s:element minOccurs="1" maxOccurs="1" name="monthly" type="s:double" />
+          <s:element minOccurs="1" maxOccurs="1" name="yearly" type="s:double" />
+          <s:element minOccurs="1" maxOccurs="1" name="total" type="s:double" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="DnsBlackListCheck">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="lastChecked" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="interval" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="lastState" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="lastStateChangeTime" type="s:dateTime" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="UrlTask">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:Task">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="url" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="checkDnsbl" type="s:boolean" />
+              <s:element minOccurs="0" maxOccurs="1" name="rawUrl" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="HttpTask">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:UrlTask">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="httpMethod" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="userAgent" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="referer" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="acceptHeader" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="keywords" type="tns:ArrayOfString" />
+              <s:element minOccurs="0" maxOccurs="1" name="keywordMode" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="maxResponsePageSize" type="s:int" />
+              <s:element minOccurs="1" maxOccurs="1" name="timeout" type="s:int" />
+              <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="postParameters" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="httpHeaders" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="httpBody" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="followRedirect" type="s:boolean" />
+              <s:element minOccurs="1" maxOccurs="1" name="checkCertificateExpiration" type="s:boolean" />
+              <s:element minOccurs="1" maxOccurs="1" name="checkDomainExpiration" type="s:boolean" />
+              <s:element minOccurs="0" maxOccurs="1" name="ignoredStatuses" type="tns:ArrayOfInt" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="CounterTask">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:UrlTask">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="counterName" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="monitorType" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="deploymentType" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="counterType" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="errorLevel1" nillable="true" type="s:double" />
+              <s:element minOccurs="1" maxOccurs="1" name="errorLevel2" nillable="true" type="s:double" />
+              <s:element minOccurs="0" maxOccurs="1" name="errorCondition" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="errorCheckCount" type="s:int" />
+              <s:element minOccurs="0" maxOccurs="1" name="ftp" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="ftpLogin" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="ftpPassword" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="query" type="tns:CounterQuery" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="CounterQuery">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="counterType" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" default="" name="diskLabelOrFileSystem" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" default="" name="socketAddress" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" default="80" name="socketPort" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" default="" name="dbConnectionString" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" default="" name="perfCounterCategory" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" default="" name="perfCounterName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" default="" name="perfCounterInstance" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="PortTask">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:UrlTask">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="protocol" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="pattern" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="PingTask">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:UrlTask">
+            <s:sequence>
+              <s:element minOccurs="1" maxOccurs="1" name="delay" type="s:int" />
+              <s:element minOccurs="1" maxOccurs="1" name="quantity" type="s:unsignedByte" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="SnmpTask">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:Task">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="host" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="community" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="snmpVersion" type="s:unsignedByte" />
+              <s:element minOccurs="0" maxOccurs="1" name="oid" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="port" type="s:int" />
+              <s:element minOccurs="1" maxOccurs="1" name="retries" type="s:int" />
+              <s:element minOccurs="0" maxOccurs="1" name="snmpMethod" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="DatabaseTask">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:Task">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="serverType" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="server" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="serverPort" type="s:int" />
+              <s:element minOccurs="0" maxOccurs="1" name="service" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="database" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="login" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="query" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="queryMode" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="comparisonMode" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="value1" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="value2" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="includeValue1" type="s:boolean" />
+              <s:element minOccurs="1" maxOccurs="1" name="includeValue2" type="s:boolean" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:element name="GetTask">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="id" type="s1:guid" />
+            <s:element minOccurs="1" maxOccurs="1" name="additionalTaskInfo" type="tns:TaskInformation" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetTaskResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetTaskResult" type="tns:Task" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetTasksByFilter">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="filter" type="tns:TaskFilter" />
+            <s:element minOccurs="1" maxOccurs="1" name="additionalTaskInfo" type="tns:TaskInformation" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="TaskFilter">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="id" nillable="true" type="s1:guid" />
+          <s:element minOccurs="0" maxOccurs="1" name="ids" type="tns:ArrayOfGuid" />
+          <s:element minOccurs="1" maxOccurs="1" name="excludeIds" nillable="true" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="taskType" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="taskTypes" type="tns:ArrayOfString" />
+          <s:element minOccurs="1" maxOccurs="1" name="excludeTaskTypes" nillable="true" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="status" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="url" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="urls" type="tns:ArrayOfString" />
+          <s:element minOccurs="1" maxOccurs="1" name="urlSearchLike" nillable="true" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="excludeUrls" nillable="true" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="names" type="tns:ArrayOfString" />
+          <s:element minOccurs="1" maxOccurs="1" name="nameSearchLike" nillable="true" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="excludeNames" nillable="true" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="interval" nillable="true" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="intervals" type="tns:ArrayOfInt" />
+          <s:element minOccurs="1" maxOccurs="1" name="excludeIntervals" nillable="true" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="openStat" nillable="true" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="lastState" nillable="true" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="tags" type="tns:ArrayOfString" />
+          <s:element minOccurs="1" maxOccurs="1" name="overlimited" nillable="true" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="active" nillable="true" type="s:boolean" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="GetTasksByFilterResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetTasksByFilterResult" type="tns:ArrayOfTask" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateTask">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="taskData" type="tns:TaskEditableData" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="TaskEditableData">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="id" nillable="true" type="s1:guid" />
+          <s:element minOccurs="1" maxOccurs="1" name="enabled" nillable="true" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="interval" type="s:int" />
+          <s:element minOccurs="0" maxOccurs="1" name="name" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="fullLog" nillable="true" type="s:boolean" />
+          <s:element minOccurs="1" maxOccurs="1" name="openStat" nillable="true" type="s:boolean" />
+          <s:element minOccurs="0" maxOccurs="1" name="tags" type="tns:ArrayOfString" />
+          <s:element minOccurs="0" maxOccurs="1" name="agentPools" type="tns:ArrayOfString" />
+          <s:element minOccurs="0" maxOccurs="1" name="subscriptions" type="tns:ArrayOfSubscription" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="UrlTaskEditableData" abstract="true">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:TaskEditableData">
+            <s:sequence>
+              <s:element minOccurs="1" maxOccurs="1" name="checkDnsbl" nillable="true" type="s:boolean" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="HttpTaskEditableData">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:UrlTaskEditableData">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="url" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="httpMethod" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="userAgent" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="referer" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="acceptHeader" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="keywords" type="tns:ArrayOfString" />
+              <s:element minOccurs="0" maxOccurs="1" name="keywordMode" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="userName" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="postParameters" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="httpBody" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="httpHeaders" type="s:string" />
+              <s:element minOccurs="0" maxOccurs="1" name="ignoredStatuses" type="tns:ArrayOfInt" />
+              <s:element minOccurs="1" maxOccurs="1" name="followRedirect" nillable="true" type="s:boolean" />
+              <s:element minOccurs="1" maxOccurs="1" name="checkDomainExpiration" nillable="true" type="s:boolean" />
+              <s:element minOccurs="1" maxOccurs="1" name="checkCertificateExpiration" nillable="true" type="s:boolean" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="PortTaskEditableData">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:UrlTaskEditableData">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="host" type="s:string" />
+              <s:element minOccurs="1" maxOccurs="1" name="port" nillable="true" type="s:int" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:complexType name="PingTaskEditableData">
+        <s:complexContent mixed="false">
+          <s:extension base="tns:UrlTaskEditableData">
+            <s:sequence>
+              <s:element minOccurs="0" maxOccurs="1" name="host" type="s:string" />
+            </s:sequence>
+          </s:extension>
+        </s:complexContent>
+      </s:complexType>
+      <s:element name="CreateTaskResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CreateTaskResult" type="tns:Task" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="CreateTasks">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="taskData" type="tns:ArrayOfTaskEditableData" />
+            <s:element minOccurs="1" maxOccurs="1" name="returnBadFormatedData" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="ArrayOfTaskEditableData">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="TaskEditableData" nillable="true" type="tns:TaskEditableData" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="CreateTasksResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="CreateTasksResult" type="tns:BatchTaskOperationResult" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="BatchTaskOperationResult">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="tasks" type="tns:ArrayOfTask" />
+          <s:element minOccurs="0" maxOccurs="1" name="badTaskEditableData" type="tns:ArrayOfBadTaskEditableData" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="ArrayOfBadTaskEditableData">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="unbounded" name="BadTaskEditableData" nillable="true" type="tns:BadTaskEditableData" />
+        </s:sequence>
+      </s:complexType>
+      <s:complexType name="BadTaskEditableData">
+        <s:sequence>
+          <s:element minOccurs="1" maxOccurs="1" name="index" type="s:int" />
+          <s:element minOccurs="1" maxOccurs="1" name="taskId" nillable="true" type="s1:guid" />
+          <s:element minOccurs="0" maxOccurs="1" name="code" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="message" type="s:string" />
+        </s:sequence>
+      </s:complexType>
+      <s:element name="UpdateTasksByFilter">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="filter" type="tns:TaskFilter" />
+            <s:element minOccurs="0" maxOccurs="1" name="taskData" type="tns:TaskEditableData" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateTasksByFilterResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpdateTasksByFilterResult" type="tns:ArrayOfTask" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateTask">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="id" type="s1:guid" />
+            <s:element minOccurs="0" maxOccurs="1" name="taskData" type="tns:TaskEditableData" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateTaskResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpdateTaskResult" type="tns:Task" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateTasks">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="taskData" type="tns:ArrayOfTaskEditableData" />
+            <s:element minOccurs="1" maxOccurs="1" name="returnBadFormatedData" type="s:boolean" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UpdateTasksResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="UpdateTasksResult" type="tns:BatchTaskOperationResult" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteTask">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="id" type="s1:guid" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteTaskResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DeleteTaskResult" type="tns:Task" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteTasks">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ids" type="tns:ArrayOfGuid" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteTasksResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DeleteTasksResult" type="tns:ArrayOfTask" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteTasksByFilter">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="filter" type="tns:TaskFilter" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="DeleteTasksByFilterResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DeleteTasksByFilterResult" type="tns:ArrayOfTask" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+    </s:schema>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://microsoft.com/wsdl/types/">
+      <s:simpleType name="guid">
+        <s:restriction base="s:string">
+          <s:pattern value="[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}" />
+        </s:restriction>
+      </s:simpleType>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="GetTaskTypesSoapIn">
+    <wsdl:part name="parameters" element="tns:GetTaskTypes" />
+  </wsdl:message>
+  <wsdl:message name="GetTaskTypesSoapOut">
+    <wsdl:part name="parameters" element="tns:GetTaskTypesResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetTaskTypesAuthHeader">
+    <wsdl:part name="AuthHeader" element="tns:AuthHeader" />
+  </wsdl:message>
+  <wsdl:message name="GetTaskIntervalsSoapIn">
+    <wsdl:part name="parameters" element="tns:GetTaskIntervals" />
+  </wsdl:message>
+  <wsdl:message name="GetTaskIntervalsSoapOut">
+    <wsdl:part name="parameters" element="tns:GetTaskIntervalsResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetTaskIntervalsAuthHeader">
+    <wsdl:part name="AuthHeader" element="tns:AuthHeader" />
+  </wsdl:message>
+  <wsdl:message name="GetTasksSoapIn">
+    <wsdl:part name="parameters" element="tns:GetTasks" />
+  </wsdl:message>
+  <wsdl:message name="GetTasksSoapOut">
+    <wsdl:part name="parameters" element="tns:GetTasksResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetTasksAuthHeader">
+    <wsdl:part name="AuthHeader" element="tns:AuthHeader" />
+  </wsdl:message>
+  <wsdl:message name="GetTaskSoapIn">
+    <wsdl:part name="parameters" element="tns:GetTask" />
+  </wsdl:message>
+  <wsdl:message name="GetTaskSoapOut">
+    <wsdl:part name="parameters" element="tns:GetTaskResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetTaskAuthHeader">
+    <wsdl:part name="AuthHeader" element="tns:AuthHeader" />
+  </wsdl:message>
+  <wsdl:message name="GetTasksByFilterSoapIn">
+    <wsdl:part name="parameters" element="tns:GetTasksByFilter" />
+  </wsdl:message>
+  <wsdl:message name="GetTasksByFilterSoapOut">
+    <wsdl:part name="parameters" element="tns:GetTasksByFilterResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetTasksByFilterAuthHeader">
+    <wsdl:part name="AuthHeader" element="tns:AuthHeader" />
+  </wsdl:message>
+  <wsdl:message name="CreateTaskSoapIn">
+    <wsdl:part name="parameters" element="tns:CreateTask" />
+  </wsdl:message>
+  <wsdl:message name="CreateTaskSoapOut">
+    <wsdl:part name="parameters" element="tns:CreateTaskResponse" />
+  </wsdl:message>
+  <wsdl:message name="CreateTaskAuthHeader">
+    <wsdl:part name="AuthHeader" element="tns:AuthHeader" />
+  </wsdl:message>
+  <wsdl:message name="CreateTasksSoapIn">
+    <wsdl:part name="parameters" element="tns:CreateTasks" />
+  </wsdl:message>
+  <wsdl:message name="CreateTasksSoapOut">
+    <wsdl:part name="parameters" element="tns:CreateTasksResponse" />
+  </wsdl:message>
+  <wsdl:message name="CreateTasksAuthHeader">
+    <wsdl:part name="AuthHeader" element="tns:AuthHeader" />
+  </wsdl:message>
+  <wsdl:message name="UpdateTasksByFilterSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateTasksByFilter" />
+  </wsdl:message>
+  <wsdl:message name="UpdateTasksByFilterSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateTasksByFilterResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateTasksByFilterAuthHeader">
+    <wsdl:part name="AuthHeader" element="tns:AuthHeader" />
+  </wsdl:message>
+  <wsdl:message name="UpdateTaskSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateTask" />
+  </wsdl:message>
+  <wsdl:message name="UpdateTaskSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateTaskResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateTaskAuthHeader">
+    <wsdl:part name="AuthHeader" element="tns:AuthHeader" />
+  </wsdl:message>
+  <wsdl:message name="UpdateTasksSoapIn">
+    <wsdl:part name="parameters" element="tns:UpdateTasks" />
+  </wsdl:message>
+  <wsdl:message name="UpdateTasksSoapOut">
+    <wsdl:part name="parameters" element="tns:UpdateTasksResponse" />
+  </wsdl:message>
+  <wsdl:message name="UpdateTasksAuthHeader">
+    <wsdl:part name="AuthHeader" element="tns:AuthHeader" />
+  </wsdl:message>
+  <wsdl:message name="DeleteTaskSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteTask" />
+  </wsdl:message>
+  <wsdl:message name="DeleteTaskSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteTaskResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteTaskAuthHeader">
+    <wsdl:part name="AuthHeader" element="tns:AuthHeader" />
+  </wsdl:message>
+  <wsdl:message name="DeleteTasksSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteTasks" />
+  </wsdl:message>
+  <wsdl:message name="DeleteTasksSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteTasksResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteTasksAuthHeader">
+    <wsdl:part name="AuthHeader" element="tns:AuthHeader" />
+  </wsdl:message>
+  <wsdl:message name="DeleteTasksByFilterSoapIn">
+    <wsdl:part name="parameters" element="tns:DeleteTasksByFilter" />
+  </wsdl:message>
+  <wsdl:message name="DeleteTasksByFilterSoapOut">
+    <wsdl:part name="parameters" element="tns:DeleteTasksByFilterResponse" />
+  </wsdl:message>
+  <wsdl:message name="DeleteTasksByFilterAuthHeader">
+    <wsdl:part name="AuthHeader" element="tns:AuthHeader" />
+  </wsdl:message>
+  <wsdl:portType name="TaskServiceSoap">
+    <wsdl:operation name="GetTaskTypes">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Return available regular task types. Currently: &lt;i&gt;Http&lt;/i&gt;, &lt;i&gt;Ping&lt;/i&gt;, &lt;i&gt;Port&lt;/i&gt;, &lt;i&gt;Database&lt;/i&gt;, &lt;i&gt;Snmp&lt;/i&gt;, &lt;i&gt;Counter&lt;/i&gt;</wsdl:documentation>
+      <wsdl:input message="tns:GetTaskTypesSoapIn" />
+      <wsdl:output message="tns:GetTaskTypesSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetTaskIntervals">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">Return available regular task intervals in minutes. Currently: &lt;i&gt;1&lt;/i&gt;, &lt;i&gt;5&lt;/i&gt;, &lt;i&gt;15&lt;/i&gt;, &lt;i&gt;30&lt;/i&gt;, &lt;i&gt;60&lt;/i&gt;</wsdl:documentation>
+      <wsdl:input message="tns:GetTaskIntervalsSoapIn" />
+      <wsdl:output message="tns:GetTaskIntervalsSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetTasks">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">&lt;span&gt;Return all your tasks with additional information if requested&lt;/span&gt;
+             &lt;div&gt;
+                &lt;span&gt;Params:&lt;/span&gt;
+                &lt;ul style='margin-top: 0px; margin-bottom: 10px'&gt;
+                &lt;li style='margin-top: 5px'&gt;&lt;b&gt;TaskInformation&lt;/b&gt; - combination of simple flags for specifying additional info. Simple flags are: 
+                    &lt;ul style='margin-top: 0px; margin-bottom: 10px'&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;i&gt;0x00 (None)&lt;/i&gt; - no additional info&lt;/li&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;i&gt;0x01 (Subscriptions)&lt;/i&gt; - return array of &lt;b&gt;Subscription&lt;/b&gt; for every task (see &lt;a href='/api/soap/v1/subscription.asmx'&gt;subscription service&lt;/a&gt; for details)&lt;/li&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;i&gt;0x10 (Stats)&lt;/i&gt; - return task daily, monthly, yearly, total statistics (see &lt;b&gt;Task&lt;/b&gt; description below)&lt;/li&gt;
+                    &lt;/ul&gt;
+                &lt;/li&gt;
+                &lt;/ul&gt;
+             &lt;/div&gt;
+             &lt;div&gt;
+                &lt;span&gt;Result: array of &lt;b&gt;Task&lt;/b&gt; inherited types: &lt;b&gt;HttpTask&lt;/b&gt;, &lt;b&gt;PingTask&lt;/b&gt;, &lt;b&gt;PortTask&lt;/b&gt;, &lt;b&gt;DatabaseTask&lt;/b&gt;, &lt;b&gt;SnmpTask&lt;/b&gt;&lt;/span&gt;&lt;br/&gt;
+                &lt;ul style='margin-top: 0px; margin-bottom: 10px'&gt;
+                &lt;li style='margin-top: 5px'&gt;
+                    &lt;b&gt;Task&lt;/b&gt;:
+                    &lt;ul style='margin-top: 0px; margin-bottom: 10px'&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;b&gt;id&lt;/b&gt; - task id&lt;/li&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;b&gt;name&lt;/b&gt; - task name specified by you (user)&lt;/li&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;b&gt;userId&lt;/b&gt; - task user id&lt;/li&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;b&gt;creationTime&lt;/b&gt; - time of task creation&lt;/li&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;b&gt;taskType&lt;/b&gt; - task type&lt;/li&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;b&gt;enabled&lt;/b&gt; - is task enabled by you (user) or not&lt;/li&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;b&gt;interval&lt;/b&gt; - task interval in minutes&lt;/li&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;b&gt;upFromTime&lt;/b&gt; - time from which task is up&lt;/li&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;b&gt;lastCheckedTime&lt;/b&gt; - time of last task execution&lt;/li&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;b&gt;lastViewedTime&lt;/b&gt; - last task access&lt;/li&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;b&gt;lastState&lt;/b&gt; - 1 if task is up, 0 if task is down&lt;/li&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;b&gt;lastStateChangeTime&lt;/b&gt; - time of last state change&lt;/li&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;b&gt;openStatEnabled&lt;/b&gt; - if statistics and task results are public&lt;/li&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;b&gt;fullLogEnabled&lt;/b&gt; - is full log enabled&lt;/li&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;b&gt;disablenceReason&lt;/b&gt; - null(nil) if task is enabled by host-tracker system or some disablence reason: InsufficientFunds for example&lt;/li&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;b&gt;disablenceTime&lt;/b&gt; - null(nil) if task is enabled by host-tracker system or some disablence time&lt;/li&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;b&gt;deleted&lt;/b&gt; - always false for retrieved tasks (for future use).&lt;/li&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;b&gt;holdResults&lt;/b&gt; - true if results for task must be saved in db.&lt;/li&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;b&gt;agentStat&lt;/b&gt; - true if statistics for task by agent should be stored&lt;/li&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;b&gt;billingOverlimits&lt;/b&gt; - array of task overlimits in current user billing package or empty array.&lt;/li&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;b&gt;tags&lt;/b&gt; - user specified task tags&lt;/li&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;b&gt;subscriptions&lt;/b&gt; - subscriptions for this task (see &lt;a href='/api/soap/v1/subscription.asmx'&gt;subscription service&lt;/a&gt; GetSubscriptions for details)&lt;/li&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;b&gt;stats&lt;/b&gt; - statistics for task:
+                            &lt;ul style='margin-top: 0px; margin-bottom: 10px'&gt;
+                                &lt;li style='margin-top: 5px'&gt;&lt;b&gt;daily&lt;/b&gt; - daily statistics (in %)&lt;/li&gt;    
+                                &lt;li style='margin-top: 5px'&gt;&lt;b&gt;monthly&lt;/b&gt; - monthly statistics (in %)&lt;/li&gt;    
+                                &lt;li style='margin-top: 5px'&gt;&lt;b&gt;yearly&lt;/b&gt; - yearly statistics (in %)&lt;/li&gt;    
+                                &lt;li style='margin-top: 5px'&gt;&lt;b&gt;total&lt;/b&gt; - total statistics (in %)&lt;/li&gt;                              
+                            &lt;/ul&gt;
+                        &lt;/li&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;b&gt;agentPools&lt;/b&gt; - pools of agents from which task is monitored (see &lt;a href='/api/soap/v1/agent.asmx'&gt;agent service&lt;/a&gt; for details)&lt;/li&gt;
+                    &lt;/ul&gt;
+                &lt;/li&gt;
+                &lt;li style='margin-top: 5px'&gt;
+                    &lt;b&gt;HttpTask&lt;/b&gt;:
+                    &lt;ul style='margin-top: 0px; margin-bottom: 10px'&gt;
+                        &lt;li style='margin-top: 5px'&gt;Inherited fields from &lt;b&gt;Task&lt;/b&gt;&lt;/li&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;b&gt;httpMethod&lt;/b&gt; - available &lt;i&gt;Get&lt;/i&gt;, &lt;i&gt;Head&lt;/i&gt;, &lt;i&gt;Post&lt;/i&gt;&lt;/li&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;b&gt;userAgent&lt;/b&gt; - user agent for http requests&lt;/li&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;b&gt;referer&lt;/b&gt; - referrer for http requests&lt;/li&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;b&gt;acceptHeader&lt;/b&gt; - Accept http header for http requests&lt;/li&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;b&gt;keywords&lt;/b&gt; - list of words which are used in http response analyzing. See keywordMode below. &lt;/li&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;b&gt;keywordMode&lt;/b&gt; - specify how to analyze response from http resource:
+                            &lt;ul style='margin-top: 0px; margin-bottom: 10px'&gt;
+                                &lt;li style='margin-top: 5px'&gt;&lt;b&gt;PresentAny&lt;/b&gt; - task will success if any word in keywords parameter will be present in response&lt;/li&gt;    
+                                &lt;li style='margin-top: 5px'&gt;&lt;b&gt;PresentAll&lt;/b&gt; - task will success if all words in keywords parameter will be present in response&lt;/li&gt;    
+                                &lt;li style='margin-top: 5px'&gt;&lt;b&gt;ReverseAll&lt;/b&gt; - task will success if all words in keywords parameter will be absent in response&lt;/li&gt;    
+                                &lt;li style='margin-top: 5px'&gt;&lt;b&gt;ReverseAny&lt;/b&gt; - task will success if any word in keywords parameter will be absent in response&lt;/li&gt;    
+                                &lt;li style='margin-top: 5px'&gt;&lt;b&gt;ReverseWithResult&lt;/b&gt; - task will success if all words in keywords parameter will be absent in response. If task failed - some word was found - respnse document line part after this word will be captured and returned as task result&lt;/li&gt;    
+                            &lt;/ul&gt;                    
+                        &lt;/li&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;b&gt;maxResponsePageSize&lt;/b&gt; - maximal response size&lt;/li&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;b&gt;timeout&lt;/b&gt; - request timeout&lt;/li&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;b&gt;userName&lt;/b&gt; - user name for basic authentication&lt;/li&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;b&gt;password&lt;/b&gt; - password for basic authentication&lt;/li&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;b&gt;postParameters&lt;/b&gt; - if method is Post then this parameter is form urlEncoded parameters to use in request&lt;/li&gt;
+                    &lt;/ul&gt;
+                &lt;/li&gt;
+                &lt;li style='margin-top: 5px'&gt;
+                    &lt;b&gt;PingTask&lt;/b&gt;:
+                    &lt;ul style='margin-top: 0px; margin-bottom: 10px'&gt;
+                        &lt;li style='margin-top: 5px'&gt;Inherited fields from &lt;b&gt;Task&lt;/b&gt;&lt;/li&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;b&gt;delay&lt;/b&gt; - delay in seconds between pings&lt;/li&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;b&gt;quantity&lt;/b&gt; - number of pings&lt;/li&gt;
+                    &lt;/ul&gt;
+                &lt;/li&gt;
+                &lt;li style='margin-top: 5px'&gt;
+                    &lt;b&gt;PortTask&lt;/b&gt;:
+                    &lt;ul style='margin-top: 0px; margin-bottom: 10px'&gt;
+                        &lt;li style='margin-top: 5px'&gt;Inherited fields from &lt;b&gt;Task&lt;/b&gt;&lt;/li&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;b&gt;port&lt;/b&gt; - port to check&lt;/li&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;b&gt;protocol&lt;/b&gt; - TCP, maybe UDP in future&lt;/li&gt;
+                        &lt;li style='margin-top: 5px'&gt;&lt;b&gt;pattern&lt;/b&gt; - in future - pattern for response analyzation&lt;/li&gt;
+                    &lt;/ul&gt;
+                &lt;/li&gt;
+                &lt;li style='margin-top: 5px'&gt;
+                    &lt;span&gt;Other task types - &lt;b&gt;DatabaseTask&lt;/b&gt;, &lt;b&gt;SnmpTask&lt;/b&gt; currently could not be created from api (only from ui). &lt;b&gt;CounterTask&lt;/b&gt; development is in progress&lt;/span&gt;
+                &lt;/li&gt;
+                &lt;/ul&gt;
+             &lt;/div&gt;
+            </wsdl:documentation>
+      <wsdl:input message="tns:GetTasksSoapIn" />
+      <wsdl:output message="tns:GetTasksSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetTask">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">&lt;span&gt;Get task (&lt;b&gt;HttpTask&lt;/b&gt;, &lt;b&gt;PingTask&lt;/b&gt;, &lt;b&gt;PortTask&lt;/b&gt;, ...) by id (GUID). Return null if task was not found.&lt;/span&gt;</wsdl:documentation>
+      <wsdl:input message="tns:GetTaskSoapIn" />
+      <wsdl:output message="tns:GetTaskSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetTasksByFilter">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">&lt;span&gt;Get array of &lt;b&gt;Task&lt;/b&gt;(&lt;b&gt;HttpTask&lt;/b&gt;, &lt;b&gt;PingTask&lt;/b&gt;, &lt;b&gt;PortTask&lt;/b&gt;, ...) using task filter&lt;/span&gt;
+            &lt;div&gt;
+                &lt;span&gt;Params:&lt;/span&gt;
+                &lt;b&gt;TaskFilter&lt;/b&gt;:
+                &lt;ul style='margin-top: 0px; margin-bottom: 10px'&gt;
+                    &lt;li style='margin-top: 5px'&gt;Hint 1. All filter fields are optional and could be combined together.&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;Hint 2. Specifying single filtered value (for ex. name) and filtered value collection (for ex. names) results in filtered value collection with all specified values (in ex. specified name and specified names).&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;Hint 3. If several fields are specified then they are combined via AND condition.&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;Hint 4. If you specify task id (ids) and task name (names) - they will be combined via OR.&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;id&lt;/b&gt; - task id to filter by&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;ids&lt;/b&gt; - task ids to filter by&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;excludeIds&lt;/b&gt; - search for tasks not included in id and/or ids fields&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;taskType&lt;/b&gt; - filter by task type. Supported values specified in &lt;b&gt;Task&lt;/b&gt; (See GetTasks method)&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;taskTypes&lt;/b&gt; - filter by task types. Supported values specified in &lt;b&gt;Task&lt;/b&gt; (See GetTasks method)&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;excludeTaskTypes&lt;/b&gt;&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;status&lt;/b&gt; - &lt;i&gt;enabled&lt;/i&gt; or &lt;i&gt;disabled&lt;/i&gt;&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;url&lt;/b&gt; - url to find (or part of url if urlSearchLike is true)&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;urls&lt;/b&gt; - urls to find, incompatable with urlSearchLike&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;urlSearchLike&lt;/b&gt; - if true - url specifies a part of url to find&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;excludeUrls&lt;/b&gt;&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;name&lt;/b&gt; - task name or it's part if nameSearchLike = true&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;names&lt;/b&gt; - task names, incompatible with nameSearchLike&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;nameSearchLike&lt;/b&gt; - task names&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;interval&lt;/b&gt; - task interval&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;intervals&lt;/b&gt; - task intervals&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;excludeIntervals&lt;/b&gt;&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;openStat&lt;/b&gt; - search for public tasks&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;lastState&lt;/b&gt; - search tasks with specified state&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;tags&lt;/b&gt; - search by tags&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;overlimited&lt;/b&gt; - filter billing overlimited tasks&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;active&lt;/b&gt; - search for active tasks. Task could be disabled by user or by system. &lt;br/&gt;
+                     If true - returned active tasks, if false - returned disabled by user or by system tasks. &lt;br/&gt; 
+                     Default is null - return all tasks&lt;/li&gt;
+                &lt;/ul&gt;
+            &lt;/div&gt;
+            &lt;div&gt;
+                &lt;span&gt;Soap client faults:&lt;/span&gt;
+                &lt;ul style='margin-top: 0px; margin-bottom: 10px'&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;WrongTaskType&lt;/b&gt; - wrong task type specified in filter. See GetTaskTypes for available types.&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;WrongTaskStatus&lt;/b&gt; - wrong task status specified in filter. Allowed: &lt;i&gt;enabled&lt;/i&gt;,&lt;i&gt;disabled&lt;/i&gt;&lt;/li&gt;
+                &lt;/ul&gt;
+            &lt;/div&gt;
+        </wsdl:documentation>
+      <wsdl:input message="tns:GetTasksByFilterSoapIn" />
+      <wsdl:output message="tns:GetTasksByFilterSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CreateTask">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">&lt;span&gt;Create task from &lt;b&gt;HttpTaskEditableData&lt;/b&gt;, &lt;b&gt;PingTaskEditableData&lt;/b&gt;, &lt;b&gt;PortTaskEditableData&lt;/b&gt;&lt;/span&gt;&lt;br/&gt;
+            &lt;div&gt;
+                &lt;span&gt;Params:&lt;/span&gt;
+                &lt;ul style='margin-top: 0px; margin-bottom: 10px'&gt;
+                    &lt;li style='margin-top: 5px'&gt;
+                        &lt;b&gt;TaskEditableData&lt;/b&gt; is base but could not be used in Create methods directly (could be used in Update methods):
+                        &lt;ul style='margin-top: 0px; margin-bottom: 10px'&gt;
+                            &lt;li style='margin-top: 5px'&gt;&lt;b&gt;id&lt;/b&gt; - should only be specified in UpdateTasks method. Ignored in other methods.&lt;/li&gt;
+                            &lt;li style='margin-top: 5px'&gt;&lt;b&gt;enabled&lt;/b&gt; - if true task will be created in enabled state&lt;/li&gt;
+                            &lt;li style='margin-top: 5px'&gt;&lt;b&gt;interval&lt;/b&gt; - interval in minutes. See available intervals in GetTaskIntervals method&lt;/li&gt;
+                            &lt;li style='margin-top: 5px'&gt;&lt;b&gt;name&lt;/b&gt; - task name&lt;/li&gt;
+                            &lt;li style='margin-top: 5px'&gt;&lt;b&gt;fullLog&lt;/b&gt; - enable or disable full logging for task&lt;/li&gt;
+                            &lt;li style='margin-top: 5px'&gt;&lt;b&gt;openStat&lt;/b&gt; - is statistics and task results are public (available for public access)&lt;/li&gt;
+                            &lt;li style='margin-top: 5px'&gt;&lt;b&gt;tags&lt;/b&gt; - array of tags for task&lt;/li&gt;
+                            &lt;li style='margin-top: 5px'&gt;&lt;b&gt;agentPools&lt;/b&gt; - monitoring agents from which task should be monitored. &lt;br/&gt; 
+                                You could not specify monitoring agents by default. DeniedAccessToMonitoringAgents error will be raised. &lt;br/&gt;
+                                You need privelege mode for accessing such feature. Contact us for details.&lt;/li&gt;
+                            &lt;li style='margin-top: 5px'&gt;&lt;b&gt;followRedirect&lt;/b&gt; - monitoring agents from which task should be monitored. &lt;br/&gt; 
+                                You could not specify monitoring agents by default. DeniedAccessToMonitoringAgents error will be raised. &lt;br/&gt;
+                                You need privelege mode for accessing such feature. Contact us for details.&lt;/li&gt;
+                            &lt;li style='margin-top: 5px'&gt;&lt;b&gt;subscriptions&lt;/b&gt; - array of &lt;b&gt;Subscription&lt;/b&gt;. See &lt;a href='/api/soap/v1/subscription.asmx'&gt;subscription service&lt;/a&gt; for details&lt;/li&gt;
+                            &lt;li style='margin-top: 5px'&gt;Result of passing &lt;b&gt;TaskEditableData&lt;/b&gt; is Soap client fault with message UncomplitedData.&lt;/li&gt;
+                        &lt;/ul&gt;
+                    &lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;
+                        &lt;b&gt;HttpTaskEditableData&lt;/b&gt; extends &lt;b&gt;TaskEditableData&lt;/b&gt;:
+                        &lt;ul style='margin-top: 0px; margin-bottom: 10px'&gt;
+                            &lt;li style='margin-top: 5px'&gt;&lt;b&gt;url&lt;/b&gt; - http task url&lt;/li&gt;
+                            &lt;li style='margin-top: 5px'&gt;&lt;b&gt;httpMethod&lt;/b&gt; - http method. Supported: &lt;i&gt;Get&lt;/i&gt;, &lt;i&gt;Head&lt;/i&gt;, &lt;i&gt;Post&lt;/i&gt;&lt;/li&gt;
+                            &lt;li style='margin-top: 5px'&gt;&lt;b&gt;userAgent&lt;/b&gt; - user agent for http requests&lt;/li&gt;
+                            &lt;li style='margin-top: 5px'&gt;&lt;b&gt;referer&lt;/b&gt; - referrer for http request&lt;/li&gt;
+                            &lt;li style='margin-top: 5px'&gt;&lt;b&gt;acceptHeader&lt;/b&gt; - Accept http header for requests&lt;/li&gt;
+                            &lt;li style='margin-top: 5px'&gt;&lt;b&gt;keywords&lt;/b&gt; - keywords (see GetTasks method description)&lt;/li&gt;
+                            &lt;li style='margin-top: 5px'&gt;&lt;b&gt;keywordMode&lt;/b&gt; - keyword mode (see GetTasks method description)&lt;/li&gt;
+                            &lt;li style='margin-top: 5px'&gt;&lt;b&gt;userName&lt;/b&gt; - basic authentication user name&lt;/li&gt;
+                            &lt;li style='margin-top: 5px'&gt;&lt;b&gt;password&lt;/b&gt; - basic authentication password&lt;/li&gt;
+                            &lt;li style='margin-top: 5px'&gt;&lt;b&gt;postParameters&lt;/b&gt; - post parameters&lt;/li&gt;
+                            &lt;li style='margin-top: 5px'&gt;&lt;b&gt;checkDnsbl&lt;/b&gt; - true or false(default),
+                                if true then domain will be checked agains DNS black lists and if it is there, notification will be send according to subscriptions.                           
+                            &lt;/li&gt;
+                            &lt;li style='margin-top: 5px'&gt;&lt;b&gt;checkCertificateExpiration&lt;/b&gt; - true or false(default),
+                                if true then certificate expiration date of provided endpoint will be monitored. Notifications will be sent 30,7 and 1 day before expiration and every day after it according to subscriptions. Available only for https endpoints and ignored in other cases.
+                            &lt;/li&gt;
+                            &lt;li style='margin-top: 5px'&gt;&lt;b&gt;checkDomainExpiration&lt;/b&gt; - true or false(default),
+                                if true then domain expiration date will be monitored. Notifications will be sent 30,7 and 1 day before expiration and every day after it according to subscriptions.
+                            &lt;/li&gt;
+                            &lt;li style='margin-top: 5px'&gt;&lt;b&gt;followRedirect&lt;/b&gt; - true or false(default),
+                                if true then redirects will be followed.
+                            &lt;/li&gt;
+                        &lt;/li&gt;
+                        &lt;/ul&gt;
+                    &lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;
+                        &lt;b&gt;PortTaskEditableData&lt;/b&gt; extends &lt;b&gt;TaskEditableData&lt;/b&gt;:
+                        &lt;ul style='margin-top: 0px; margin-bottom: 10px'&gt;
+                            &lt;li style='margin-top: 5px'&gt;&lt;b&gt;host&lt;/b&gt; - IP or domain name of target host&lt;/li&gt;
+                            &lt;li style='margin-top: 5px'&gt;&lt;b&gt;port&lt;/b&gt; - port on the host&lt;/li&gt;
+                        &lt;/li&gt;
+                        &lt;/ul&gt;
+                    &lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;
+                        &lt;b&gt;PingTaskEditableData&lt;/b&gt; extends &lt;b&gt;TaskEditableData&lt;/b&gt;:
+                        &lt;ul style='margin-top: 0px; margin-bottom: 10px'&gt;
+                            &lt;li style='margin-top: 5px'&gt;&lt;b&gt;host&lt;/b&gt; - IP or domain name of target host&lt;/li&gt;
+                        &lt;/li&gt;
+                        &lt;/ul&gt;
+                    &lt;/li&gt;
+                &lt;/ul&gt;
+            &lt;/div&gt;
+            &lt;div&gt;
+                &lt;span&gt;Result: created &lt;b&gt;Task&lt;/b&gt;. See GetTasks method for details.&lt;/span&gt;
+            &lt;/div&gt;
+            &lt;div&gt;
+                &lt;span&gt;Soap client faults:&lt;/span&gt;
+                &lt;ul style='margin-top: 0px; margin-bottom: 10px'&gt;
+                    &lt;li style='margin-top: 5px'&gt;Hint. Some Soap faults provide additional information in Soap message such as specified value of faulted parameter and allowed array of values for it.&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;WrongInterval&lt;/b&gt; - interval for task is not in range of available regular task intervals (see GetTaskIntervals method)&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;UncomplitedData&lt;/b&gt; - passed in method &lt;b&gt;TaskEditableData&lt;/b&gt;. But should &lt;b&gt;HttpTaskEditableData&lt;/b&gt;, &lt;b&gt;PingTaskEditableData&lt;/b&gt;, &lt;b&gt;PortTaskEditableData&lt;/b&gt;.&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;DeniedAccessToMonitoringAgents&lt;/b&gt; - you could not set monitoring points for task by default. Contact us if you want to do this.&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;EmptyUrl&lt;/b&gt; - url is required&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;BadIP&lt;/b&gt; - bad ip specified in host or url&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;WrongUrl&lt;/b&gt; - url is wrong&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;UrlInBlackList&lt;/b&gt; - url is in black list&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;WrongHttpMethod&lt;/b&gt; - http method is wrong (see GetTask for allowed methods)&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;WrongKeywordMode&lt;/b&gt; - http task keyword mode is wrong (see GetTask for allowed modes)&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;WrongPort&lt;/b&gt; - port of port task is wrong&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;WrongTaskType&lt;/b&gt; - task type is wrong (see GetTaskTypes for allowed types)&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;WrongTaskStatus&lt;/b&gt; - allowed &lt;i&gt;enabled&lt;/i&gt; and &lt;i&gt;disabled&lt;/i&gt; values&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;SimilarExists&lt;/b&gt; - some of your tasks have same url or host or host:port specified&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;Subscription error codes - see &lt;a href='/api/soap/v1/subscription.asmx'&gt;subscription service&lt;/a&gt; AddSubscriptions&lt;/li&gt;
+                &lt;/ul&gt;
+            &lt;/div&gt;
+        </wsdl:documentation>
+      <wsdl:input message="tns:CreateTaskSoapIn" />
+      <wsdl:output message="tns:CreateTaskSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="CreateTasks">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">&lt;span&gt;Create tasks from array of &lt;b&gt;HttpTaskEditableData&lt;/b&gt;, &lt;b&gt;PingTaskEditableData&lt;/b&gt;, &lt;b&gt;PortTaskEditableData&lt;/b&gt;.&lt;/span&gt;&lt;br/&gt;
+            &lt;div&gt;
+                &lt;span&gt;Params:&lt;/span&gt;
+                &lt;ul style='margin-top: 0px; margin-bottom: 10px'&gt;
+                    &lt;li style='margin-top: 5px'&gt;array of TaskEditableData (see CreateTask method)&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;returnBadFormatedData&lt;/b&gt; - if false then wrong data in one task will result in fail of whole batch. &lt;br/&gt;
+                        If true then tasks with correct data will be created; wrong data and created tasks will be returned as result of method.
+                    &lt;/li&gt;                
+                &lt;/ul&gt;
+            &lt;/div&gt;
+            &lt;div&gt;
+                &lt;span&gt;Result: &lt;b&gt;BatchTaskOperationResult&lt;/b&gt;&lt;/span&gt;
+                &lt;ul style='margin-top: 0px; margin-bottom: 10px'&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;tasks&lt;/b&gt; - array of &lt;b&gt;Task&lt;/b&gt; - created tasks&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;badTaskEditableData&lt;/b&gt; - array of &lt;b&gt;BadTaskEditableData&lt;/b&gt; - wrong input data&lt;br/&gt;
+                        &lt;b&gt;BadTaskEditableData&lt;/b&gt;
+                        &lt;ul style='margin-top: 0px; margin-bottom: 10px'&gt;
+                            &lt;li style='margin-top: 5px'&gt;&lt;b&gt;index&lt;/b&gt; - index of wrong data in input array&lt;/li&gt;
+                            &lt;li style='margin-top: 5px'&gt;&lt;b&gt;data&lt;/b&gt; - wrong data&lt;/li&gt;
+                            &lt;li style='margin-top: 5px'&gt;&lt;b&gt;code&lt;/b&gt; - error code. See Soap fault messages for CreateTask method&lt;/li&gt;
+                            &lt;li style='margin-top: 5px'&gt;&lt;b&gt;message&lt;/b&gt; - error code description. See Soap fault messages for CreateTask method&lt;/li&gt;
+                        &lt;/ul&gt;
+                    &lt;/li&gt;                
+                &lt;/ul&gt;
+            &lt;/div&gt;
+            &lt;div&gt;
+                &lt;span&gt;Soap client faults: See CreateTask method. Raised only if returnBadFormatedData is false&lt;/span&gt;
+            &lt;/div&gt;
+        </wsdl:documentation>
+      <wsdl:input message="tns:CreateTasksSoapIn" />
+      <wsdl:output message="tns:CreateTasksSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateTasksByFilter">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">&lt;span&gt;Update tasks returned by filter&lt;/span&gt;&lt;br/&gt;
+            &lt;span&gt;For &lt;b&gt;TaskFilter&lt;/b&gt; details see GetTasksByFilter method&lt;span&gt;&lt;br/&gt;
+            &lt;span&gt;For &lt;b&gt;TaskEditableData&lt;/b&gt; details see CreateTask method&lt;span&gt;&lt;br/&gt;
+            &lt;span&gt;Soap client faults - see GetTasksByFilter and UpdateTask&lt;br/&gt;
+        </wsdl:documentation>
+      <wsdl:input message="tns:UpdateTasksByFilterSoapIn" />
+      <wsdl:output message="tns:UpdateTasksByFilterSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateTask">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">&lt;span&gt;Update task with specified id (GUID)&lt;/span&gt;&lt;br/&gt;
+            &lt;span&gt;For details of &lt;b&gt;TaskEditableData&lt;/b&gt; see CreateTask method&lt;/span&gt;
+            &lt;div&gt;
+                &lt;span&gt;Hint 1&lt;/span&gt;&lt;br/&gt;
+                &lt;span&gt;You could use &lt;b&gt;TaskEditableData&lt;/b&gt; (in contrast to Create methods) in Update methods. &lt;br/&gt;
+                 This will result in updating general properties of tasks (of all types). For updating specific properties (for ex. for http task)
+                 you should use derived structures (&lt;b&gt;HttpTaskEditableData&lt;/b&gt;, &lt;b&gt;PingTaskEditableData&lt;/b&gt;, &lt;b&gt;PortTaskEditableData&lt;/b&gt;)
+                &lt;/span&gt;
+            &lt;/div&gt;
+            &lt;div&gt;
+                &lt;span&gt;Soap client faults:&lt;/span&gt;
+                &lt;ul style='margin-top: 0px; margin-bottom: 10px'&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;WrongInterval&lt;/b&gt; - interval for task is not in range of available regular task intervals (see GetTaskIntervals method)&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;WrongEditableTaskDataType&lt;/b&gt; - type of task in db and type of input editable data is not the same.&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;DeniedAccessToMonitoringAgents&lt;/b&gt; - you could not set monitoring points for task by default. Contact us if you want to do this.&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;BadIP&lt;/b&gt; - bad ip specified in host or url&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;WrongUrl&lt;/b&gt; - url is wrong&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;UrlInBlackList&lt;/b&gt; - url is in black list&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;WrongHttpMethod&lt;/b&gt; - http method is wrong (see GetTask for allowed methods)&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;WrongKeywordMode&lt;/b&gt; - http task keyword mode is wrong (see GetTask for allowed modes)&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;WrongPort&lt;/b&gt; - port of port task is wrong&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;WrongTaskType&lt;/b&gt; - task type is wrong (see GetTaskTypes for allowed types)&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;WrongTaskStatus&lt;/b&gt; - allowed &lt;i&gt;enabled&lt;/i&gt; and &lt;i&gt;disabled&lt;/i&gt; values&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;SimilarExists&lt;/b&gt; - some of your tasks have same url or host or host:port specified&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;Subscription error codes - see &lt;a href='/api/soap/v1/subscription.asmx'&gt;subscription service&lt;/a&gt; for available Soap client faults&lt;/li&gt;
+                &lt;/ul&gt;
+            &lt;/div&gt;
+        </wsdl:documentation>
+      <wsdl:input message="tns:UpdateTaskSoapIn" />
+      <wsdl:output message="tns:UpdateTaskSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="UpdateTasks">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">&lt;span&gt;Update task with specified id (GUID)&lt;/span&gt;&lt;br/&gt;
+            &lt;span&gt;For details of &lt;b&gt;TaskEditableData&lt;/b&gt; see CreateTask method&lt;/span&gt;
+            &lt;div&gt;
+                &lt;span&gt;Hint 1&lt;/span&gt;&lt;br/&gt;
+                &lt;span&gt;You could use &lt;b&gt;TaskEditableData&lt;/b&gt; (in contrast to Create methods) in Update methods. &lt;br/&gt;
+                 This will result in updating general properties of tasks (of all types). For updating specific properties (for ex. for http task)
+                 you should use derived structures (&lt;b&gt;HttpTaskEditableData&lt;/b&gt;, &lt;b&gt;PingTaskEditableData&lt;/b&gt;, &lt;b&gt;PortTaskEditableData&lt;/b&gt;)
+                &lt;/span&gt;
+            &lt;/div&gt;
+            &lt;div&gt;
+                &lt;span&gt;Soap client faults:&lt;/span&gt;
+                &lt;ul style='margin-top: 0px; margin-bottom: 10px'&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;NoIdInTaskData&lt;/b&gt; - no id specified in task editable data&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;EmptyTaskData&lt;/b&gt; - array of editable task data is empty&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;Soap faults described in UpdatedTask method&lt;/li&gt;
+                &lt;/ul&gt;
+            &lt;/div&gt;
+        </wsdl:documentation>
+      <wsdl:input message="tns:UpdateTasksSoapIn" />
+      <wsdl:output message="tns:UpdateTasksSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteTask">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">&lt;span&gt;Delete task by id (GUID)&lt;/span&gt;</wsdl:documentation>
+      <wsdl:input message="tns:DeleteTaskSoapIn" />
+      <wsdl:output message="tns:DeleteTaskSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteTasks">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">&lt;span&gt;Delete tasks by ids (array of GUID)&lt;/span&gt;</wsdl:documentation>
+      <wsdl:input message="tns:DeleteTasksSoapIn" />
+      <wsdl:output message="tns:DeleteTasksSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="DeleteTasksByFilter">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">&lt;span&gt;Delete tasks returned by filter&lt;/span&gt;&lt;br/&gt;
+            &lt;span&gt;For &lt;b&gt;TaskFilter&lt;/b&gt; details see GetTasksByFilter method&lt;span&gt;&lt;br/&gt;
+            &lt;span&gt;Soap client faults - see GetTasksByFilter&lt;br/&gt;
+        </wsdl:documentation>
+      <wsdl:input message="tns:DeleteTasksByFilterSoapIn" />
+      <wsdl:output message="tns:DeleteTasksByFilterSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="TaskServiceSoap" type="tns:TaskServiceSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="GetTaskTypes">
+      <soap:operation soapAction="http://www.host-tracker.com/Services/GetTaskTypes" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:GetTaskTypesAuthHeader" part="AuthHeader" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTaskIntervals">
+      <soap:operation soapAction="http://www.host-tracker.com/Services/GetTaskIntervals" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:GetTaskIntervalsAuthHeader" part="AuthHeader" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTasks">
+      <soap:operation soapAction="http://www.host-tracker.com/Services/GetTasks" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:GetTasksAuthHeader" part="AuthHeader" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTask">
+      <soap:operation soapAction="http://www.host-tracker.com/Services/GetTask" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:GetTaskAuthHeader" part="AuthHeader" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetTasksByFilter">
+      <soap:operation soapAction="http://www.host-tracker.com/Services/GetTasksByFilter" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:GetTasksByFilterAuthHeader" part="AuthHeader" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateTask">
+      <soap:operation soapAction="http://www.host-tracker.com/Services/CreateTask" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:CreateTaskAuthHeader" part="AuthHeader" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="CreateTasks">
+      <soap:operation soapAction="http://www.host-tracker.com/Services/CreateTasks" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:CreateTasksAuthHeader" part="AuthHeader" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateTasksByFilter">
+      <soap:operation soapAction="http://www.host-tracker.com/Services/UpdateTasksByFilter" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:UpdateTasksByFilterAuthHeader" part="AuthHeader" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateTask">
+      <soap:operation soapAction="http://www.host-tracker.com/Services/UpdateTask" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:UpdateTaskAuthHeader" part="AuthHeader" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="UpdateTasks">
+      <soap:operation soapAction="http://www.host-tracker.com/Services/UpdateTasks" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:UpdateTasksAuthHeader" part="AuthHeader" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteTask">
+      <soap:operation soapAction="http://www.host-tracker.com/Services/DeleteTask" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:DeleteTaskAuthHeader" part="AuthHeader" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteTasks">
+      <soap:operation soapAction="http://www.host-tracker.com/Services/DeleteTasks" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:DeleteTasksAuthHeader" part="AuthHeader" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="DeleteTasksByFilter">
+      <soap:operation soapAction="http://www.host-tracker.com/Services/DeleteTasksByFilter" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:DeleteTasksByFilterAuthHeader" part="AuthHeader" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="TaskService">
+    <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">&lt;span&gt;Operations with HostTracker regular tasks&lt;/span&gt;&lt;br/&gt;
+          &lt;div style='border: 1px solid black; padding: .5em'&gt;
+          &lt;span&gt;&lt;u&gt;Authentication for every method&lt;/u&gt; performed through &lt;b&gt;AuthHeader&lt;/b&gt; Soap header with fields:&lt;/span&gt;
+            &lt;ul style='margin-top: 0px; margin-bottom: 10px'&gt;
+                &lt;li style='margin-top: 5px'&gt;&lt;b&gt;login&lt;/b&gt; - user login, must be specified with password, incompatible with ticket&lt;/li&gt;
+                &lt;li style='margin-top: 5px'&gt;&lt;b&gt;password&lt;/b&gt; - user password, must be specified with login, incompatible with ticket&lt;/li&gt;
+                &lt;li style='margin-top: 5px'&gt;&lt;b&gt;ticket&lt;/b&gt; - ticket from SignIn API call of &lt;a href='/api/soap/v1/user.asmx'&gt;user service&lt;/a&gt;, incompatible with login, password pair&lt;/li&gt;
+            &lt;/ul&gt;
+          &lt;span&gt;You should specify only ticket or only (login, password) pair in auth header.&lt;/span&gt;&lt;br/&gt;
+          &lt;span&gt;Soap client fault messages on auth. fail:&lt;/span&gt;
+                &lt;ul style='margin-top: 0px; margin-bottom: 10px'&gt;
+                &lt;li style='margin-top: 5px'&gt;&lt;b&gt;AccessDenied&lt;/b&gt; - access to api is denied. Also coused by wrong user billing package&lt;/li&gt;
+                &lt;li style='margin-top: 5px'&gt;&lt;b&gt;IncorrectLoginOrPassword&lt;/b&gt; - raised when login and/or password is incorrect in auth. header&lt;/li&gt;
+                &lt;li style='margin-top: 5px'&gt;&lt;b&gt;TicketExpired&lt;/b&gt; - provided ticked is expired&lt;/li&gt;
+                &lt;li style='margin-top: 5px'&gt;&lt;b&gt;WrongTicket&lt;/b&gt; - ticket could not be decrypted&lt;/li&gt;
+                &lt;/ul&gt;
+          &lt;/div&gt;
+        </wsdl:documentation>
+    <wsdl:port name="TaskServiceSoap" binding="tns:TaskServiceSoap">
+      <soap:address location="https://www.host-tracker.com/api/soap/v1/task.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

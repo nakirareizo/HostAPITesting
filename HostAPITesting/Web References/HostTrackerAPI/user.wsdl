@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://www.host-tracker.com/Services" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://www.host-tracker.com/Services" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">&lt;span&gt;Perform operations with user data&lt;/span&gt;</wsdl:documentation>
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://www.host-tracker.com/Services">
+      <s:element name="SignIn">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="login" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="password" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="SignInResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SignInResult" type="tns:AuthTicket" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:complexType name="AuthTicket">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="ticket" type="s:string" />
+          <s:element minOccurs="1" maxOccurs="1" name="expirationTime" type="s:dateTime" />
+          <s:element minOccurs="1" maxOccurs="1" name="expirationUnixTime" type="s:int" />
+        </s:sequence>
+      </s:complexType>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="SignInSoapIn">
+    <wsdl:part name="parameters" element="tns:SignIn" />
+  </wsdl:message>
+  <wsdl:message name="SignInSoapOut">
+    <wsdl:part name="parameters" element="tns:SignInResponse" />
+  </wsdl:message>
+  <wsdl:portType name="UserServiceSoap">
+    <wsdl:operation name="SignIn">
+      <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">&lt;span&gt;Create auth. ticket for temporary use with other api calls&lt;/span&gt;
+              &lt;div&gt;
+                  &lt;span&gt;Params:&lt;/span&gt;
+                  &lt;ul style='margin-top: 0px; margin-bottom: 10px'&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;login&lt;/b&gt; - user login&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;password&lt;/b&gt; - user password&lt;/li&gt;
+                  &lt;/ul&gt;
+              &lt;/div&gt;
+              &lt;div&gt;
+                  &lt;span&gt;Result: &lt;b&gt;AuthTicket&lt;/b&gt;&lt;/span&gt;
+                  &lt;ul style='margin-top: 0px; margin-bottom: 10px'&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;ticket&lt;/b&gt; - contains temporarry ticket (currently for 2 days use)&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;expirationTime&lt;/b&gt; - time of ticket expiration&lt;/li&gt;
+                  &lt;/ul&gt;
+              &lt;/div&gt;
+              &lt;div&gt;
+                  &lt;span&gt;Soap client fault messages:&lt;/span&gt;
+                  &lt;ul style='margin-top: 0px; margin-bottom: 10px'&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;AccessDenied&lt;/b&gt; - access to api is denied. Also coused by wrong user billing package&lt;/li&gt;
+                    &lt;li style='margin-top: 5px'&gt;&lt;b&gt;IncorrectLoginOrPassword&lt;/b&gt; - login or password is incorrect&lt;/li&gt;
+                  &lt;/ul&gt;
+              &lt;/div&gt;
+             </wsdl:documentation>
+      <wsdl:input message="tns:SignInSoapIn" />
+      <wsdl:output message="tns:SignInSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="UserServiceSoap" type="tns:UserServiceSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="SignIn">
+      <soap:operation soapAction="http://www.host-tracker.com/Services/SignIn" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="UserService">
+    <wsdl:documentation xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">&lt;span&gt;Perform operations with user data&lt;/span&gt;</wsdl:documentation>
+    <wsdl:port name="UserServiceSoap" binding="tns:UserServiceSoap">
+      <soap:address location="https://www.host-tracker.com/api/soap/v1/user.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>
